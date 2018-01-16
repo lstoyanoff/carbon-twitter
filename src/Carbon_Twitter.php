@@ -25,13 +25,6 @@ class Carbon_Twitter {
 	protected $api_endpoint = 'https://api.twitter.com/1.1';
 
 	/**
-	 * Twitter username.
-	 *
-	 * @var string
-	 */
-	public $username = null;
-
-	/**
 	 * Twitter API credentials.
 	 *
 	 * @static
@@ -75,8 +68,6 @@ class Carbon_Twitter {
 	 * @return void
 	 */
 	public function __construct( $username ) {
-		$this->username = $username;
-
 		$this->init_cache();
 	}
 
@@ -180,12 +171,54 @@ class Carbon_Twitter {
 	 * @return array
 	 */
 	public static function get_tweets( $username, $limit ) {
-		$instance = new static( $username );
+		$instance = new static();
 		$instance->limit = $limit;
 
 		return $instance->_get_data(
-			"{$instance->api_endpoint}/statuses/user_timeline.json",
-			"?include_entities=true&include_rts=true&screen_name={$instance->username}&count={$instance->limit}"
+			"{$instance->api_endpoint}/search/tweets.json",
+			"?q=@{$username}&include_entities=true&count={$instance->limit}"
+		);
+	}
+
+	/**
+	 * Returns the Tweets from the given username.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param  string  $username  The Username to pull the tweets from.
+	 * @param  int     $limit     The limit of tweets to fetch.
+	 *
+	 * @return array
+	 */
+	public static function get_tweets_by_username( $username, $limit ) {
+		$instance = new static();
+		$instance->limit = $limit;
+
+		return $instance->_get_data(
+			"{$instance->api_endpoint}/search/tweets.json",
+			"?q=@{$username}&include_entities=true&count={$instance->limit}"
+		);
+	}
+
+	/**
+	 * Returns the Tweets from the given hashtag.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param  string  $username  The Hashtag to pull the tweets from.
+	 * @param  int     $limit     The limit of tweets to fetch.
+	 *
+	 * @return array
+	 */
+	public static function get_tweets_by_hashtag( $hashtag, $limit ) {
+		$instance = new static();
+		$instance->limit = $limit;
+
+		return $instance->_get_data(
+			"{$instance->api_endpoint}/search/tweets.json",
+			"?q=#{$hashtag}&include_entities=true&count={$instance->limit}"
 		);
 	}
 
@@ -205,7 +238,7 @@ class Carbon_Twitter {
 		$cache_key = 'carbon_twitter_' . md5( $request_url . $params );
 
 		if ( $data = $this->get_cache_driver()->read( $cache_key ) ) {
-			return $this->process_data( $data );
+			return $this->process_data( $data->statuses );
 		}
 
 		try {
@@ -224,7 +257,7 @@ class Carbon_Twitter {
 				throw new Carbon_Twitter_Exception( $error->message, $error->code );
 			}
 
-			return $this->process_data( $data );
+			return $this->process_data( $data->statuses );
 		} catch ( Carbon_Twitter_Exception $e ) {
 			if ( static::$verbose ) {
 				$this->maybe_raise_error( $e->getMessage(), $e->getCode() );

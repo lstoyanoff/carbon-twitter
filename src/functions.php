@@ -23,5 +23,29 @@ function carbon_twitter_set_config( $config = array() ) {
  * @return mixed
  */
 function carbon_twitter_get_tweets( $username, $limit = 5 ) {
-	return Carbon_Twitter::get_tweets( $username, $limit );
+	return Carbon_Twitter::get_tweets_by_username( $username, $limit );
+}
+
+/**
+ * Helper function for Carbon_Twitter::get_tweets_by_username().
+ *
+ * @param  string  $username  Twitter Username
+ * @param  integer $limit     Number of Tweets to fetch
+ *
+ * @return mixed
+ */
+function carbon_twitter_get_tweets_by_username( $username, $limit = 5 ) {
+	return Carbon_Twitter::get_tweets_by_username( $username, $limit );
+}
+
+/**
+ * Helper function for Carbon_Twitter::get_tweets_by_hashtag().
+ *
+ * @param  string  $hashtag  Twitter Hashtag
+ * @param  integer $limit     Number of Tweets to fetch
+ *
+ * @return mixed
+ */
+function carbon_twitter_get_tweets_by_hashtag( $hashtag, $limit = 5 ) {
+	return Carbon_Twitter::get_tweets_by_hashtag( $hashtag, $limit );
 }
